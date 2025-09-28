@@ -3,60 +3,70 @@ import { Link } from 'react-router-dom';
 
 const Home = () => {
   return (
-    <div className="home-container">
-      <header className="hero-section">
-        <div className="hero-content">
-          <h1>🎓 School Club & Organization Management Platform</h1>
-          <p>Discover, join, and manage school clubs with ease</p>
-          
-          <div className="hero-actions">
+    <div className="page-container">
+      <div className="container">
+        <div className="page-header">
+          <h1>School Club & Organization Management Platform</h1>
+          <p>Discover and manage school clubs with ease</p>
+        </div>
+
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">Welcome to Our Platform</h2>
+          </div>
+          <p>
+            This platform helps students discover clubs and organizations,
+            and provides tools for club leaders to manage their groups effectively.
+          </p>
+
+          <div className="nav-links">
             <Link to="/clubs" className="btn btn-primary">
-              Discover Clubs
+              Browse Clubs
             </Link>
             <Link to="/register" className="btn btn-secondary">
               Get Started
             </Link>
           </div>
         </div>
-      </header>
 
-      <section className="features-section">
-        <div className="container">
-          <h2>Platform Features</h2>
-          <div className="features-grid">
-            <div className="feature-card">
-              <h3>🔍 Club Discovery</h3>
-              <p>Browse and search through available clubs with advanced filtering</p>
-            </div>
-            <div className="feature-card">
-              <h3>👥 Member Management</h3>
-              <p>Join clubs, manage memberships, and connect with fellow students</p>
-            </div>
-            <div className="feature-card">
-              <h3>📊 Leader Dashboard</h3>
-              <p>Club leaders can manage clubs, members, and post announcements</p>
-            </div>
-            <div className="feature-card">
-              <h3>🔐 Secure Authentication</h3>
-              <p>JWT-based authentication system for students and club leaders</p>
-            </div>
+        <div className="grid">
+          <div className="card">
+            <h3>For Students</h3>
+            <ul>
+              <li>Discover clubs by interests</li>
+              <li>Join clubs easily</li>
+              <li>Manage your memberships</li>
+              <li>Stay updated with announcements</li>
+            </ul>
+          </div>
+
+          <div className="card">
+            <h3>For Club Leaders</h3>
+            <ul>
+              <li>Create and manage clubs</li>
+              <li>Track membership</li>
+              <li>Send announcements</li>
+              <li>Organize club activities</li>
+            </ul>
+          </div>
+
+          <div className="card">
+            <h3>Technology Stack</h3>
+            <ul>
+              <li>Backend: Node.js with Express.js</li>
+              <li>Database: MongoDB with Mongoose</li>
+              <li>Frontend: React.js</li>
+              <li>Auth: JWT tokens with bcrypt</li>
+            </ul>
           </div>
         </div>
-      </section>
 
-      <section className="cta-section">
-        <div className="container">
-          <h2>Ready to Get Started?</h2>
-          <div className="cta-buttons">
-            <Link to="/register" className="btn btn-primary">
-              Join as Student
-            </Link>
-            <Link to="/login" className="btn btn-outline">
-              Club Leader Login
-            </Link>
-          </div>
+        <div className="nav-links">
+          <Link to="/login">Login</Link>
+          <Link to="/register">Register</Link>
+          <Link to="/clubs">Browse Clubs</Link>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

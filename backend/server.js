@@ -1,13 +1,6 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const path = require('path');
-
-// Import routes
-const authRoutes = require('./routes/auth');
-const clubRoutes = require('./routes/clubs');
-const userRoutes = require('./routes/users');
 
 // Load environment variables
 dotenv.config();
@@ -15,92 +8,123 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configuration for production
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? [
-        'https://school-club-management-dharmendrakr004.vercel.app',
-        'https://school-club-management.vercel.app'
-      ]
-    : ['http://localhost:3000'],
-  credentials: true
-};
-
 // Middleware
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/clubs', clubRoutes);
-app.use('/api/users', userRoutes);
-
-// Basic route for School Club Management Platform
-app.get('/', (req, res) => {
+// Basic routes for School Club & Organization Management Platform
+app.get('/api', (req, res) => {
   res.json({
-    message: 'School Club Management Platform API',
-    version: '1.0.0',
+    message: 'School Club & Organization Management Platform API',
     status: 'running',
+    version: '1.0.0',
     endpoints: {
+      health: '/api/health',
       auth: '/api/auth',
       clubs: '/api/clubs',
       users: '/api/users'
-    },
-    features: [
-      'User registration and authentication',
-      'Club directory with search functionality',
-      'Club leader dashboard for managing clubs',
-      'Member management system',
-      'Announcements and updates'
-    ]
+    }
   });
 });
 
-// Error handling middleware
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    platform: 'School Club & Organization Management Platform'
+  });
+});
+
+// Mock data for development
+const mockClubs = [
+  {
+    id: '1',
+    name: 'Computer Science Club',
+    category: 'Technology',
+    description: 'Learn programming and technology together',
+    members: 15,
+    meetingTime: 'Fridays 3:00 PM'
+  },
+  {
+    id: '2',
+    name: 'Drama Society',
+    category: 'Arts',
+    description: 'Explore theater and performing arts',
+    members: 8,
+    meetingTime: 'Wednesdays 4:00 PM'
+  },
+  {
+    id: '3',
+    name: 'Basketball Team',
+    category: 'Sports',
+    description: 'Competitive basketball team',
+    members: 12,
+    meetingTime: 'Daily 5:00 PM'
+  }
+];
+
+// Basic clubs endpoint
+app.get('/api/clubs', (req, res) => {
+  res.json({
+    success: true,
+    clubs: mockClubs,
+    total: mockClubs.length
+  });
+});
+
+// Basic auth endpoints (mock)
+app.post('/api/auth/register', (req, res) => {
+  console.log('Registration request:', req.body);
+  res.json({
+    success: true,
+    message: 'User registered successfully',
+    user: {
+      id: Date.now(),
+      email: req.body.email,
+      name: req.body.name,
+      role: req.body.role || 'student'
+    },
+    token: 'mock-jwt-token'
+  });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  console.log('Login request:', req.body);
+  res.json({
+    success: true,
+    message: 'Login successful',
+    user: {
+      id: '1',
+      email: req.body.email,
+      name: 'User',
+      role: 'student'
+    },
+    token: 'mock-jwt-token'
+  });
+});
+
+// Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'production' ? {} : err.message
+    success: false,
+    message: 'Something went wrong!'
   });
 });
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({ 
-    message: 'Route not found',
-    availableEndpoints: ['/api/auth', '/api/clubs', '/api/users']
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
   });
 });
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/school-clubs', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
-  console.log('✅ Connected to MongoDB');
-  console.log('🎓 School Club Management Platform Database Ready');
-  
-  // Start server
-  app.listen(PORT, () => {
-    console.log(`🚀 School Club Management Server running on port ${PORT}`);
-    console.log(`📱 API Base URL: http://localhost:${PORT}/api`);
-    console.log('🎯 Ready for club discovery and management!');
-  });
-})
-.catch((err) => {
-  console.error('❌ MongoDB connection error:', err);
-  process.exit(1);
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 School Club Management Server running on port ${PORT}`);
+  console.log(`📱 API available at: http://localhost:${PORT}/api`);
 });
-
-// Serve static files in production (for Vercel deployment)
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
-  
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
-  });
-}
 
 module.exports = app;

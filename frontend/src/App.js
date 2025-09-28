@@ -2,23 +2,24 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
-// Import components based on copilot instructions
+// Import components for School Club & Organization Management Platform
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ClubDirectory from './pages/ClubDirectory';
 import Dashboard from './pages/Dashboard';
+import ClubLeaderDashboard from './pages/ClubLeaderDashboard';
 
-// Import CSS
-import './styles/App.css';
+// Import basic CSS
+import './App.css';
 
 function App() {
   return (
     <AuthProvider>
-      <Router basename="/">
+      <Router>
         <div className="App">
           <Routes>
-            {/* Public routes for School Club & Organization Management Platform */}
+            {/* Public routes */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -26,8 +27,9 @@ function App() {
             
             {/* Protected routes */}
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/leader-dashboard" element={<ClubLeaderDashboard />} />
             
-            {/* Fallback route */}
+            {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
