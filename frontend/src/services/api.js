@@ -1,19 +1,19 @@
 import axios from 'axios';
 
-// API configuration for GitHub Pages deployment
+// API configuration for School Club Management Platform
 const getBaseURL = () => {
-  // For GitHub Pages, use the Vercel backend
-  if (window.location.hostname === 'dharmendrakr004.github.io') {
+  // For production Vercel deployment
+  if (window.location.hostname.includes('vercel.app')) {
+    return '/api';
+  }
+  
+  // For GitHub Pages deployment
+  if (window.location.hostname.includes('github.io')) {
     return 'https://schoolclubplatform-8tozzxe1p.vercel.app/api';
   }
   
   // For local development
-  if (process.env.NODE_ENV === 'development') {
-    return process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-  }
-  
-  // For Vercel deployment
-  return '/api';
+  return process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 };
 
 const API_BASE_URL = getBaseURL();
@@ -25,7 +25,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: false, // Set to false for cross-origin requests
+  withCredentials: false,
 });
 
 // Add auth token to requests
@@ -36,6 +36,7 @@ api.interceptors.request.use((config) => {
   }
   return config;
 }, (error) => {
+  console.error('Request interceptor error:', error);
   return Promise.reject(error);
 });
 
@@ -48,7 +49,6 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      // Don't redirect automatically for GitHub Pages
       console.log('Authentication expired. Please login again.');
     }
     
@@ -56,14 +56,14 @@ api.interceptors.response.use(
   }
 );
 
-// Auth API functions
+// Auth API functions based on copilot instructions
 export const authAPI = {
   register: (userData) => api.post('/auth/register', userData),
   login: (credentials) => api.post('/auth/login', credentials),
   getProfile: () => api.get('/auth/profile')
 };
 
-// Clubs API functions  
+// Clubs API functions for club discovery and management
 export const clubsAPI = {
   getAllClubs: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
@@ -77,7 +77,7 @@ export const clubsAPI = {
   searchClubs: (searchTerm) => api.get(`/clubs?search=${encodeURIComponent(searchTerm)}`)
 };
 
-// Users API functions
+// Users API functions for member management
 export const usersAPI = {
   getJoinedClubs: () => api.get('/users/clubs'),
   getManagedClubs: () => api.get('/users/managed-clubs'),

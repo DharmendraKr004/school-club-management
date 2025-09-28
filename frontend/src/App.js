@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
-// Import components
+// Import components based on copilot instructions
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -15,7 +15,7 @@ import './styles/App.css';
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router basename="/">
         <div className="App">
           <Routes>
             {/* Public routes for School Club & Organization Management Platform */}
