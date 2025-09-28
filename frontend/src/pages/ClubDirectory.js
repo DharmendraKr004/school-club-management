@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { clubsAPI } from '../services/api';
 
 const ClubDirectory = () => {
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [error, setError] = useState('');
 
-  const categories = [
-    'All', 'Academic', 'Sports', 'Arts', 'Technology', 
-    'Community Service', 'Cultural', 'Professional'
-  ];
+  const categories = ['All', 'Technology', 'Arts', 'Sports', 'Academic'];
 
   useEffect(() => {
     fetchClubs();
@@ -20,108 +15,108 @@ const ClubDirectory = () => {
 
   const fetchClubs = async () => {
     try {
-      setLoading(true);
-      const response = await clubsAPI.getAllClubs();
-      setClubs(response.data.clubs || []);
-    } catch (error) {
-      setError('Failed to load clubs. Please try again later.');
-      console.error('Error fetching clubs:', error);
-    } finally {
+      // Mock data for now - will connect to API later
+      const mockClubs = [
+        {
+          id: '1',
+          name: 'Computer Science Club',
+          category: 'Technology',
+          description: 'Learn programming and technology together',
+          members: 15,
+          meetingTime: 'Fridays 3:00 PM'
+        },
+        {
+          id: '2',
+          name: 'Drama Society',
+          category: 'Arts',
+          description: 'Explore theater and performing arts',
+          members: 8,
+          meetingTime: 'Wednesdays 4:00 PM'
+        },
+        {
+          id: '3',
+          name: 'Basketball Team',
+          category: 'Sports',
+          description: 'Competitive basketball team',
+          members: 12,
+          meetingTime: 'Daily 5:00 PM'
+        }
+      ];
+      
+      setClubs(mockClubs);
       setLoading(false);
-    }
-  };
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchTerm.trim()) {
-      fetchClubs();
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await clubsAPI.searchClubs(searchTerm);
-      setClubs(response.data.clubs || []);
     } catch (error) {
-      setError('Search failed. Please try again.');
-    } finally {
+      console.error('Error fetching clubs:', error);
       setLoading(false);
     }
   };
 
   const filteredClubs = clubs.filter(club => {
-    const matchesCategory = selectedCategory === '' || selectedCategory === 'All' || club.category === selectedCategory;
     const matchesSearch = club.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          club.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+    const matchesCategory = selectedCategory === '' || selectedCategory === 'All' || club.category === selectedCategory;
+    
+    return matchesSearch && matchesCategory;
   });
 
   return (
-    <div className="club-directory">
+    <div className="page-container">
       <div className="container">
-        <header className="directory-header">
-          <h1>🔍 Discover School Clubs</h1>
-          <p>Find and join clubs that match your interests</p>
-        </header>
+        <div className="page-header">
+          <h1>Club Directory</h1>
+          <p>Discover and join clubs that match your interests</p>
+        </div>
 
-        <div className="search-filters">
-          <form onSubmit={handleSearch} className="search-form">
+        <div className="card">
+          <div className="form-group">
             <input
               type="text"
-              placeholder="Search clubs by name or description..."
+              placeholder="Search clubs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
             />
-            <button type="submit" className="btn btn-primary">Search</button>
-          </form>
+          </div>
 
-          <div className="category-filters">
-            {categories.map(category => (
-              <button
-                key={category}
-                className={`filter-btn ${selectedCategory === category ? 'active' : ''}`}
-                onClick={() => setSelectedCategory(category === 'All' ? '' : category)}
-              >
-                {category}
-              </button>
-            ))}
+          <div className="form-group">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              {categories.map(category => (
+                <option key={category} value={category === 'All' ? '' : category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
-        {error && <div className="error-message">{error}</div>}
-
         {loading ? (
-          <div className="loading-state">
+          <div className="loading">
             <div className="spinner"></div>
             <p>Loading clubs...</p>
           </div>
         ) : (
-          <div className="clubs-grid">
+          <div className="grid">
             {filteredClubs.length > 0 ? (
               filteredClubs.map(club => (
-                <div key={club._id} className="club-card">
-                  <div className="club-header">
-                    <h3>{club.name}</h3>
-                    <span className="club-category">{club.category}</span>
+                <div key={club.id} className="card">
+                  <div className="card-header">
+                    <h3 className="card-title">{club.name}</h3>
+                    <span style={{fontSize: '0.9em', color: '#666'}}>{club.category}</span>
                   </div>
-                  <p className="club-description">{club.description}</p>
-                  <div className="club-stats">
-                    <span className="member-count">👥 {club.members?.length || 0} members</span>
-                    <span className="meeting-time">🕒 {club.meetingTime}</span>
+                  <p>{club.description}</p>
+                  <div style={{margin: '10px 0', fontSize: '0.9em', color: '#666'}}>
+                    <div>👥 {club.members} members</div>
+                    <div>🕒 {club.meetingTime}</div>
                   </div>
-                  <div className="club-actions">
-                    <Link to={`/clubs/${club._id}`} className="btn btn-outline">
-                      View Details
-                    </Link>
-                    <button className="btn btn-primary">
-                      Join Club
-                    </button>
-                  </div>
+                  <button className="btn btn-primary">
+                    Join Club
+                  </button>
                 </div>
               ))
             ) : (
-              <div className="no-clubs">
+              <div className="card">
                 <h3>No clubs found</h3>
                 <p>Try adjusting your search terms or filters</p>
               </div>
@@ -129,12 +124,10 @@ const ClubDirectory = () => {
           </div>
         )}
 
-        <div className="directory-footer">
-          <p>
-            <Link to="/">← Back to Home</Link> | 
-            <Link to="/register"> Create Account</Link> | 
-            <Link to="/login"> Login</Link>
-          </p>
+        <div className="nav-links">
+          <Link to="/">Back to Home</Link>
+          <Link to="/login">Login</Link>
+          <Link to="/register">Register</Link>
         </div>
       </div>
     </div>

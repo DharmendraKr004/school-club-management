@@ -8,7 +8,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ClubDirectory from './pages/ClubDirectory';
 import Dashboard from './pages/Dashboard';
-import ClubLeaderDashboard from './pages/ClubLeaderDashboard';
 
 // Import basic CSS
 import './App.css';
@@ -27,7 +26,6 @@ function App() {
             
             {/* Protected routes */}
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/leader-dashboard" element={<ClubLeaderDashboard />} />
             
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -4,7 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import '../styles/modern.css';
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    role: 'student'
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -21,7 +25,7 @@ const Login = () => {
 
     const result = await login(formData);
     if (result.success) {
-      navigate(result.user.role === 'clubLeader' ? '/leader-dashboard' : '/dashboard');
+      navigate('/dashboard');
     } else {
       setError(result.error);
     }
@@ -143,6 +147,36 @@ const Login = () => {
                   fontSize: '16px'
                 }}
               />
+            </div>
+
+            <div style={{ marginBottom: '30px' }}>
+              <label style={{ 
+                display: 'block',
+                marginBottom: '8px',
+                color: '#2d3748',
+                fontWeight: '600',
+                fontSize: '14px'
+              }}>
+                🎭 Role
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                required
+                className="modern-select"
+                style={{ 
+                  width: '100%',
+                  fontSize: '16px',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e0',
+                  backgroundColor: 'white'
+                }}
+              >
+                <option value="student">Student</option>
+                <option value="clubLeader">Club Leader</option>
+              </select>
             </div>
 
             <button 
