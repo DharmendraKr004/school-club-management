@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { usersAPI } from '../services/api';
+import { usersAPI, clubsAPI } from '../services/api';
 import Loading from '../components/Loading';
 import ClubForm from '../components/ClubForm';
 import '../styles/modern.css';
 
 const Dashboard = () => {
-  const { user } = useAuth();
-  const [userClubs, setUserClubs] = useState([]);
+  const { user, logout } = useAuth();
+  const [joinedClubs, setJoinedClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showClubForm, setShowClubForm] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchUserData();
@@ -18,16 +19,23 @@ const Dashboard = () => {
 
   const fetchUserData = async () => {
     try {
-      const clubsResponse = await usersAPI.getUserClubs();
-      // Add null checks and ensure clubs array exists
-      const clubs = clubsResponse?.data?.clubs || [];
-      setUserClubs(Array.isArray(clubs) ? clubs : []);
+      setLoading(true);
+      const response = await usersAPI.getJoinedClubs();
+      setJoinedClubs(response.data.clubs || []);
     } catch (error) {
+      setError('Failed to load your clubs');
       console.error('Error fetching user data:', error);
-      // Set empty array on error to prevent null reference issues
-      setUserClubs([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLeaveClub = async (clubId) => {
+    try {
+      await clubsAPI.leaveClub(clubId);
+      setJoinedClubs(prev => prev.filter(club => club._id !== clubId));
+    } catch (error) {
+      setError('Failed to leave club');
     }
   };
 
@@ -83,12 +91,12 @@ const Dashboard = () => {
               alignItems: 'center',
               gap: '10px'
             }}>
-              🎯 My Clubs ({userClubs?.length || 0})
+              🎯 My Clubs ({joinedClubs?.length || 0})
             </h2>
             
-            {userClubs && userClubs.length > 0 ? (
+            {joinedClubs && joinedClubs.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {userClubs.map(({ club, joinedAt }, index) => {
+                {joinedClubs.map(club => {
                   // Add null checks for club data
                   if (!club || !club._id) return null;
                   
