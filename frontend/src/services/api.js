@@ -1,12 +1,31 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? '/api' 
-  : 'http://localhost:5000/api';
+// API configuration for GitHub Pages deployment
+const getBaseURL = () => {
+  // For GitHub Pages, use the Vercel backend
+  if (window.location.hostname === 'dharmendrakr004.github.io') {
+    return 'https://schoolclubplatform-8tozzxe1p.vercel.app/api';
+  }
+  
+  // For local development
+  if (process.env.NODE_ENV === 'development') {
+    return process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  }
+  
+  // For Vercel deployment
+  return '/api';
+};
 
+const API_BASE_URL = getBaseURL();
+
+// Create axios instance for School Club Management Platform
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: { 'Content-Type': 'application/json' }
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: false, // Set to false for cross-origin requests
 });
 
 // Add auth token to requests
@@ -16,16 +35,35 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
-// Auth API
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API Error:', error.response?.data || error.message);
+    
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      // Don't redirect automatically for GitHub Pages
+      console.log('Authentication expired. Please login again.');
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+// Auth API functions
 export const authAPI = {
   register: (userData) => api.post('/auth/register', userData),
   login: (credentials) => api.post('/auth/login', credentials),
   getProfile: () => api.get('/auth/profile')
 };
 
-// Clubs API (Fixed export that was causing the error)
+// Clubs API functions  
 export const clubsAPI = {
   getAllClubs: (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
@@ -39,7 +77,7 @@ export const clubsAPI = {
   searchClubs: (searchTerm) => api.get(`/clubs?search=${encodeURIComponent(searchTerm)}`)
 };
 
-// Users API
+// Users API functions
 export const usersAPI = {
   getJoinedClubs: () => api.get('/users/clubs'),
   getManagedClubs: () => api.get('/users/managed-clubs'),
@@ -47,3 +85,4 @@ export const usersAPI = {
 };
 
 export default api;
+export { API_BASE_URL };
