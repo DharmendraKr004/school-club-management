@@ -1,44 +1,22 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 
 // Import pages
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 import ClubDirectory from './pages/ClubDirectory';
 import ClubDetails from './pages/ClubDetails';
-import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
+import ClubLeaderDashboard from './pages/ClubLeaderDashboard';
 
 // Import components
 import Navbar from './components/Navbar';
 import Loading from './components/Loading';
 import ErrorBoundary from './components/ErrorBoundary';
 
-import './App.css';
-
-// Protected Route component
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-  
-  if (loading) {
-    return <Loading />;
-  }
-  
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
-
-// Public Route component (redirect if authenticated)
-const PublicRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-  
-  if (loading) {
-    return <Loading />;
-  }
-  
-  return isAuthenticated ? <Navigate to="/dashboard" /> : children;
-};
+import './styles/App.css';
 
 function AppContent() {
   const { loading } = useAuth();
@@ -85,10 +63,10 @@ function AppContent() {
             } 
           />
           <Route 
-            path="/profile" 
+            path="/leader-dashboard" 
             element={
               <ProtectedRoute>
-                <Profile />
+                <ClubLeaderDashboard />
               </ProtectedRoute>
             } 
           />
