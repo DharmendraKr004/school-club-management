@@ -1,0 +1,49 @@
+# Hackathon Submission Instructions
+
+## Live Demo (Recommended)
+- Start both servers on your machine:
+  1. **Backend**: Open a terminal and run:
+     ```
+     cd backend
+     npm install
+     npm start
+     ```
+     (MongoDB must be running locally or update the connection string in `backend/server.js`)
+  2. **Frontend**: In a new terminal, run:
+     ```
+     cd frontend
+     npm install
+     npm start
+     ```
+  3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Production Build (Optional)
+- To serve the optimized build:
+  1. Build the frontend:
+     ```
+     cd frontend
+     npm run build
+     npm install -g serve
+     serve -s build
+     ```
+  2. The app will be available at the URL shown in the terminal (default: http://localhost:5000 or http://localhost:3000)
+
+## Credentials
+- You can register a new user or use seeded accounts (see `backend/scripts/seedData.js`).
+
+## Troubleshooting
+- If you see `EADDRINUSE`, kill any node processes using the port:
+  ```
+  taskkill /f /im node.exe
+  ```
+- If MongoDB is not running, start it or use MongoDB Atlas and update the connection string.
+
+## Project Structure
+- `/backend` - Express.js API (port 5000)
+- `/frontend` - React app (port 3000)
+
+## Contact
+- For any issues, contact: [your email here]
+
+---
+**Thank you for reviewing my hackathon project!**

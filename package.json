@@ -1,0 +1,49 @@
+{
+  "name": "school-club-management",
+  "version": "1.0.0",
+  "description": "School Club & Organization Management Platform - Full-stack web application for student club discovery and management",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm start",
+    "client": "cd frontend && npm start",
+    "build": "cd frontend && npm run build",
+    "install-deps": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "vercel-build": "cd frontend && npm install && npm run build",
+    "seed": "cd backend && node scripts/seedData.js",
+    "test": "cd frontend && npm test"
+  },
+  "keywords": [
+    "school-club-management",
+    "student-organizations",
+    "club-discovery",
+    "member-management",
+    "react",
+    "nodejs",
+    "mongodb",
+    "express",
+    "jwt-authentication",
+    "full-stack",
+    "education",
+    "hackathon"
+  ],
+  "author": "Dharmendra Kumar",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DharmendraKr004/school-club-management.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DharmendraKr004/school-club-management/issues"
+  },
+  "homepage": "https://school-club-management-dharmendrakr004.vercel.app",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "private": false
+}

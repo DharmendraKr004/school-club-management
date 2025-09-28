@@ -1,0 +1,133 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const path = require('path');
+
+// Import routes
+const authRoutes = require('./routes/auth');
+const clubRoutes = require('./routes/clubs');
+const userRoutes = require('./routes/users');
+
+// Load environment variables
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Update CORS configuration for production: {
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://your-app-name.vercel.app']
+    : ['http://localhost:3000'],
+  credentials: true
+};
+
+// Middleware
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/clubs', clubRoutes);
+app.use('/api/users', userRoutes);
+
+// Basic route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'School Club Management Platform API',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      clubs: '/api/clubs',
+      users: '/api/users'
+    }
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'production' ? {} : err.message
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/school-clubs', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  console.log('Connected to MongoDB');
+  // Start server
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+})
+.catch((err) => {
+  console.error('MongoDB connection error:', err);
+  process.exit(1);
+});
+
+// Add this for Vercel deployment
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+  });
+}
+
+// Package.json scripts
+{
+  "name": "school-club-management",
+  "version": "1.0.0",
+  "description": "School Club & Organization Management Platform - Full-stack web application for club discovery and management",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm start",
+    "client": "cd frontend && npm start", 
+    "build": "cd frontend && npm run build",
+    "install-deps": "cd backend && npm install && cd ../frontend && npm install",
+    "vercel-build": "cd frontend && npm install && npm run build",
+    "seed": "cd backend && node scripts/seedData.js"
+  },
+  "keywords": [
+    "school-management",
+    "club-platform",
+    "student-organizations",
+    "react",
+    "nodejs",
+    "mongodb",
+    "express",
+    "jwt-authentication",
+    "full-stack",
+    "hackathon"
+  ],
+  "author": "Dharmendra Kumar",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DharmendraKr004/school-club-management.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DharmendraKr004/school-club-management/issues"
+  },
+  "homepage": "https://school-club-management-dharmendrakr004.vercel.app",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
