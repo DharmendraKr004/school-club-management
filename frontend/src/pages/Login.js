@@ -21,9 +21,9 @@ const Login = () => {
 
     const result = await login(formData);
     if (result.success) {
-      navigate('/dashboard');
+      navigate(result.user.role === 'clubLeader' ? '/leader-dashboard' : '/dashboard');
     } else {
-      setError(result.message);
+      setError(result.error);
     }
     setLoading(false);
   };

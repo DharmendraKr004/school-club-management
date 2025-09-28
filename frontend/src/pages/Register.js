@@ -9,36 +9,19 @@ const Register = () => {
     email: '',
     password: '',
     role: 'student',
-    studentId: '',
-    phoneNumber: ''
+    studentId: ''
   });
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const validateForm = () => {
-    if (!formData.name.trim()) {
-      setError('Name is required');
-      return false;
-    }
-    if (!formData.email.trim()) {
-      setError('Email is required');
-      return false;
-    }
-    if (!formData.password || formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return false;
-    }
-    if (formData.phoneNumber && !/^\d{10}$/.test(formData.phoneNumber)) {
-      setError('Phone number must be exactly 10 digits');
-      return false;
-    }
-    return true;
-  };
-
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -46,28 +29,14 @@ const Register = () => {
     setLoading(true);
     setError('');
 
-    // Frontend validation first
-    if (!validateForm()) {
-      setLoading(false);
-      return;
-    }
-
-    // Clean up the form data before sending
-    const cleanFormData = {
-      name: formData.name.trim(),
-      email: formData.email.trim().toLowerCase(),
-      password: formData.password,
-      role: formData.role,
-      ...(formData.studentId && formData.studentId.trim() && { studentId: formData.studentId.trim() }),
-      ...(formData.phoneNumber && formData.phoneNumber.trim() && { phoneNumber: formData.phoneNumber.trim() })
-    };
-
-    const result = await register(cleanFormData);
+    const result = await register(formData);
+    
     if (result.success) {
-      navigate('/dashboard');
+      navigate(result.user.role === 'clubLeader' ? '/leader-dashboard' : '/dashboard');
     } else {
-      setError(result.message);
+      setError(result.error);
     }
+    
     setLoading(false);
   };
 
@@ -191,7 +160,7 @@ const Register = () => {
                   }}
                 >
                   <option value="student">🎓 Student</option>
-                  <option value="club_leader">👨‍💼 Club Leader</option>
+                  <option value="clubLeader">👨‍💼 Club Leader</option>
                 </select>
               </div>
             </div>
@@ -246,13 +215,8 @@ const Register = () => {
               />
             </div>
 
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: '1fr 1fr', 
-              gap: '20px',
-              marginBottom: '30px'
-            }}>
-              <div>
+            {formData.role === 'student' && (
+              <div style={{ marginBottom: '20px' }}>
                 <label style={{ 
                   display: 'block',
                   marginBottom: '8px',
@@ -260,13 +224,14 @@ const Register = () => {
                   fontWeight: '600',
                   fontSize: '14px'
                 }}>
-                  🆔 Student ID <span style={{ color: '#718096', fontWeight: '400' }}>(optional)</span>
+                  🆔 Student ID
                 </label>
                 <input
                   type="text"
                   name="studentId"
                   value={formData.studentId}
                   onChange={handleChange}
+                  required
                   className="modern-input"
                   placeholder="Your student ID"
                   style={{ 
@@ -275,32 +240,8 @@ const Register = () => {
                   }}
                 />
               </div>
-              
-              <div>
-                <label style={{ 
-                  display: 'block',
-                  marginBottom: '8px',
-                  color: '#2d3748',
-                  fontWeight: '600',
-                  fontSize: '14px'
-                }}>
-                  📱 Phone Number <span style={{ color: '#718096', fontWeight: '400' }}>(optional)</span>
-                </label>
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  className="modern-input"
-                  placeholder="1234567890"
-                  style={{ 
-                    width: '100%',
-                    fontSize: '15px'
-                  }}
-                />
-              </div>
-            </div>
-
+            )}
+            
             <button 
               type="submit" 
               disabled={loading} 

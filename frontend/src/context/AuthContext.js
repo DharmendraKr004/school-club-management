@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
@@ -13,33 +13,19 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkAuthStatus();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const checkAuthStatus = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const savedUser = localStorage.getItem('user');
-      
-      if (token && savedUser) {
-        setUser(JSON.parse(savedUser));
-        setIsAuthenticated(true);
-        
-        // Verify token is still valid
-        const response = await authAPI.getProfile();
-        setUser(response.data.user);
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      logout();
-    } finally {
-      setLoading(false);
+    const token = localStorage.getItem('token');
+    const savedUser = localStorage.getItem('user');
+    
+    if (token && savedUser) {
+      setUser(JSON.parse(savedUser));
+      setIsAuthenticated(true);
     }
-  };
+    setLoading(false);
+  }, []);
 
   const login = async (credentials) => {
     try {
@@ -54,8 +40,7 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true, user };
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
-      return { success: false, message };
+      return { success: false, error: error.response?.data?.message || 'Login failed' };
     }
   };
 
@@ -72,18 +57,7 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true, user };
     } catch (error) {
-      console.error('Registration error:', error.response?.data);
-      let message = 'Registration failed';
-      
-      if (error.response?.data?.errors) {
-        // Handle validation errors array
-        const errors = error.response.data.errors;
-        message = errors.map(err => err.msg).join(', ');
-      } else if (error.response?.data?.message) {
-        message = error.response.data.message;
-      }
-      
-      return { success: false, message };
+      return { success: false, error: error.response?.data?.message || 'Registration failed' };
     }
   };
 
@@ -94,30 +68,13 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
-  const updateProfile = async (userData) => {
-    try {
-      const response = await authAPI.updateProfile(userData);
-      const updatedUser = response.data.user;
-      
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      setUser(updatedUser);
-      
-      return { success: true, user: updatedUser };
-    } catch (error) {
-      const message = error.response?.data?.message || 'Profile update failed';
-      return { success: false, message };
-    }
-  };
-
   const value = {
     user,
-    loading,
     isAuthenticated,
+    loading,
     login,
     register,
-    logout,
-    updateProfile,
-    checkAuthStatus
+    logout
   };
 
   return (
@@ -126,5 +83,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export default AuthContext;
